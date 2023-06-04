@@ -148,7 +148,10 @@ int vfs_statx_fd(unsigned int fd, struct kstat *stat,
 }
 EXPORT_SYMBOL(vfs_statx_fd);
 
-extern int ksu_handle_stat(int *dfd, const char __user **filename_user, int *flags);
+// KernelSU hook
+#ifdef CONFIG_KSU
+extern int ksu_handle_stat(int *dfd, const char __user **filename_user);
+#endif
 
 /**
  * vfs_statx - Get basic and extra attributes by filename
@@ -171,8 +174,11 @@ int vfs_statx(int dfd, const char __user *filename, int flags,
 	struct path path;
 	int error = -EINVAL;
 	unsigned int lookup_flags = LOOKUP_FOLLOW | LOOKUP_AUTOMOUNT;
-	
-    ksu_handle_stat(&dfd, &filename, &flags);
+
+#ifdef CONFIG_KSU
+        ksu_handle_stat(&dfd, &filename); // call KSU hook first
+#endif
+
 	if ((flags & ~(AT_SYMLINK_NOFOLLOW | AT_NO_AUTOMOUNT |
 		       AT_EMPTY_PATH | KSTAT_QUERY_FLAGS)) != 0)
 		return -EINVAL;
