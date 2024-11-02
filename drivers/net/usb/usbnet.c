@@ -2303,15 +2303,6 @@ static int __init usbnet_init(void)
 	BUILD_BUG_ON(
 		FIELD_SIZEOF(struct sk_buff, cb) < sizeof(struct skb_data));
 
-	eth_random_addr(node_id);
-	for (i = 0; i < NUM_USBNET_IDS; i++) {
-		usbnet_ipc_log_ctxt[i] =
-			ipc_log_context_create(IPC_LOG_NUM_PAGES,
-					       netdev_names[i], 0);
-		if (!usbnet_ipc_log_ctxt[i])
-			pr_err("%s: Error getting ipc_log_ctxt\n", __func__);
-	}
-
 	return 0;
 }
 module_init(usbnet_init);
